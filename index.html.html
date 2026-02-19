@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Centro de Asistencia</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#080c10;color:#e2ebe2;font-family:'DM Sans',sans-serif;min-height:100vh}
+  button{font-family:'DM Sans',sans-serif;cursor:pointer}
+  input,textarea{font-family:'DM Sans',sans-serif;outline:none}
+  .page{min-height:100vh;background:#080c10}
+  .header{background:linear-gradient(135deg,#0a1a0a,#111820);border-bottom:2px solid #00c853;padding:14px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:12}
+  .hTitle{font-family:'Syne',sans-serif;font-weight:900;font-size:1.1rem;color:#00c853}
+  .hSub{font-size:0.72rem;color:#3d5040;margin-top:2px}
+  .backBtn{background:#1a2d1a;border:none;color:#e2ebe2;width:36px;height:36px;border-radius:10px;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .tabBar{display:flex;background:#0d1117;border-bottom:1px solid #1a2520}
+  .tabOn{flex:1;padding:12px 6px;border:none;background:transparent;color:#00c853;font-size:0.82rem;font-weight:800;border-bottom:2px solid #00c853}
+  .tabOff{flex:1;padding:12px 6px;border:none;background:transparent;color:#3d5040;font-size:0.82rem;font-weight:600;border-bottom:2px solid transparent}
+  .inp{width:100%;background:#111820;border:1px solid #1e2d20;color:#e2ebe2;padding:11px 14px;border-radius:10px;font-size:0.9rem;display:block}
+  .inp::placeholder{color:#3d5040}
+  .btnGreen{width:100%;background:linear-gradient(135deg,#00c853,#009624);color:#000;border:none;border-radius:12px;padding:14px;font-weight:900;font-size:0.95rem;font-family:'Syne',sans-serif;margin-bottom:10px}
+  .btnGhost{width:100%;background:transparent;color:#3d5040;border:1px solid #1e2d20;border-radius:12px;padding:12px;font-weight:700;font-size:0.88rem;margin-bottom:8px}
+  .btnSm{background:#00c85318;color:#00c853;border:1px solid #00c85360;border-radius:8px;padding:6px 12px;font-size:0.78rem;font-weight:700}
+  .ava{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.85rem;flex-shrink:0;font-family:'Syne',sans-serif}
+  .card{background:#111820;border:1px solid #1e2d20;border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:11px}
+  .personBtn{background:#111820;border:1px solid #1e2d20;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:11px;width:100%;text-align:left}
+  .badge{display:inline-block;padding:3px 11px;border-radius:20px;font-size:0.74rem;font-weight:800}
+  .label{font-size:0.76rem;color:#3d5040;font-weight:800;text-transform:uppercase;letter-spacing:0.5px}
+  .empty{text-align:center;padding:50px 20px;color:#2a3a2a;font-size:0.9rem}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:11px 22px;border-radius:12px;font-weight:700;font-size:0.85rem;z-index:9999;white-space:nowrap;box-shadow:0 6px 24px rgba(0,0,0,0.5)}
+  .hidden{display:none}
+  textarea{resize:vertical}
+  .chipBtn{padding:8px 14px;border-radius:20px;font-size:0.82rem;font-weight:700}
+  .statBox{background:#111820;border:1px solid #1e2d20;border-radius:10px;padding:8px 12px;text-align:center;min-width:66px}
+  .statNum{font-family:'Syne',sans-serif;font-weight:900;font-size:1.3rem}
+  .statLbl{font-size:0.6rem;color:#3d5040;text-transform:uppercase;letter-spacing:0.5px}
+  ::-webkit-scrollbar{width:4px}
+  ::-webkit-scrollbar-track{background:#0d1117}
+  ::-webkit-scrollbar-thumb{background:#1e2d20;border-radius:2px}
+
+  /* Config overlay */
+  #config-overlay{position:fixed;inset:0;background:#080c10;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+  .config-box{background:#111820;border:1.5px solid #00c853;border-radius:20px;padding:32px 24px;max-width:420px;width:100%}
+  .config-title{font-family:'Syne',sans-serif;font-weight:900;font-size:1.3rem;color:#00c853;margin-bottom:6px}
+  .config-sub{color:#4a6050;font-size:0.83rem;line-height:1.6;margin-bottom:24px}
+  .config-field{margin-bottom:14px}
+  .config-label{font-size:0.72rem;color:#3d5040;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block}
+  .config-inp{width:100%;background:#0d1117;border:1px solid #1e2d20;color:#e2ebe2;padding:10px 12px;border-radius:8px;font-size:0.85rem;font-family:'DM Sans',sans-serif;outline:none}
+  .config-inp::placeholder{color:#2a3a2a}
+  .config-link{color:#00c853;font-size:0.78rem;text-decoration:none;display:inline-block;margin-top:4px}
+  .spinner{display:inline-block;width:18px;height:18px;border:2px solid #00c85340;border-top-color:#00c853;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- ===== CONFIG OVERLAY ===== -->
+<div id="config-overlay">
+  <div class="config-box">
+    <div class="config-title">⚙️ Configurar Firebase</div>
+    <div class="config-sub">Pega aquí los datos de tu proyecto Firebase. Solo se hace una vez. <a class="config-link" href="https://console.firebase.google.com" target="_blank">→ Abrir Firebase Console</a></div>
+
+    <div class="config-field">
+      <span class="config-label">API Key</span>
+      <input class="config-inp" id="cfg-apiKey" placeholder="AIzaSy..."/>
+    </div>
+    <div class="config-field">
+      <span class="config-label">Auth Domain</span>
+      <input class="config-inp" id="cfg-authDomain" placeholder="mi-proyecto.firebaseapp.com"/>
+    </div>
+    <div class="config-field">
+      <span class="config-label">Database URL</span>
+      <input class="config-inp" id="cfg-databaseURL" placeholder="https://mi-proyecto-default-rtdb.firebaseio.com"/>
+    </div>
+    <div class="config-field">
+      <span class="config-label">Project ID</span>
+      <input class="config-inp" id="cfg-projectId" placeholder="mi-proyecto"/>
+    </div>
+    <div id="cfg-error" class="hidden" style="color:#ff1744;font-size:0.8rem;margin-bottom:12px;padding:10px;background:#ff174412;border-radius:8px;border:1px solid #ff174430"></div>
+    <button class="btnGreen" style="margin-top:8px" onclick="guardarConfig()">
+      <span id="cfg-btn-text">Conectar y continuar →</span>
+    </button>
+    <p style="color:#2a3a2a;font-size:0.72rem;margin-top:8px;text-align:center">Los datos se guardan solo en este navegador</p>
+  </div>
+</div>
+
+<!-- ===== SPLASH ===== -->
+<div id="v-splash" class="page hidden" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;min-height:100vh;position:relative;overflow:hidden">
+  <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,#00c85318 0%,transparent 65%);top:10%;left:50%;transform:translateX(-50%);pointer-events:none"></div>
+  <div style="background:#111820;border:1px solid #1e2d20;border-radius:28px;padding:44px 32px 36px;max-width:380px;width:100%;text-align:center;position:relative;z-index:1;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+    <div style="width:70px;height:70px;border-radius:20px;background:linear-gradient(135deg,#00c853,#009624);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 8px 24px rgba(0,200,83,0.4)">📋</div>
+    <h1 style="font-family:'Syne',sans-serif;font-weight:900;font-size:1.7rem;color:#fff;margin-bottom:8px;letter-spacing:-1px">Centro de Asistencia</h1>
+    <p style="color:#5a7060;font-size:0.88rem;line-height:1.6;margin-bottom:32px">Sistema de registro diario del equipo.<br/>Selecciona tu nombre para comenzar.</p>
+    <button class="btnGreen" onclick="goSeleccion()">Registrar mi asistencia →</button>
+    <button class="btnGhost" onclick="goAdmin()">🔐 Panel Administrador</button>
+  </div>
+  <p id="splash-count" style="color:#2a3a2a;font-size:0.72rem;margin-top:20px"></p>
+  <button onclick="resetConfig()" style="margin-top:12px;background:none;border:none;color:#1e2d20;font-size:0.68rem;cursor:pointer">⚙️ Reconfigurar Firebase</button>
+</div>
+
+<!-- ===== SELECCIÓN ===== -->
+<div id="v-seleccion" class="page hidden">
+  <div class="header">
+    <button class="backBtn" onclick="goSplash()">←</button>
+    <div><div class="hTitle">¿Quién eres?</div><div class="hSub">Selecciona tu nombre en la lista</div></div>
+  </div>
+  <div style="padding:12px 16px;background:#0d1117;border-bottom:1px solid #1a2520;position:sticky;top:64px;z-index:10">
+    <input class="inp" id="buscar-sel" placeholder="🔍 Busca tu nombre..." oninput="renderSeleccion()" autocomplete="off"/>
+  </div>
+  <div id="lista-seleccion" style="padding:10px 14px 120px;display:flex;flex-direction:column;gap:7px"></div>
+</div>
+
+<!-- ===== MIEMBRO ===== -->
+<div id="v-miembro" class="page hidden">
+  <div class="header">
+    <button class="backBtn" onclick="goSeleccion()">←</button>
+    <div style="flex:1;min-width:0">
+      <div class="hTitle" id="m-nombre-titulo">Hola 👋</div>
+      <div class="hSub" id="m-fecha-titulo"></div>
+    </div>
+    <div id="m-sync" style="font-size:0.7rem;color:#3d5040">🔴 sin conexión</div>
+  </div>
+  <div class="tabBar">
+    <button id="tab-m-asistencia" class="tabOn" onclick="setTabMiembro('asistencia')">📋 Asistencia</button>
+    <button id="tab-m-novedades" class="tabOff" onclick="setTabMiembro('novedades')">📝 Novedad</button>
+  </div>
+  <div id="m-tab-asistencia" style="padding:24px 20px 100px">
+    <div id="m-estado-banner" class="hidden" style="border-radius:14px;padding:14px 18px;margin-bottom:20px;text-align:center">
+      <div id="m-estado-icon" style="font-size:1.4rem"></div>
+      <div id="m-estado-label" style="font-weight:800;font-size:1rem;font-family:'Syne',sans-serif;margin-top:4px"></div>
+      <div style="color:#5a7060;font-size:0.78rem;margin-top:3px">Puedes cambiarla tocando otra opción</div>
+    </div>
+    <p style="color:#5a7060;font-size:0.85rem;margin-bottom:16px">Selecciona tu estado para hoy:</p>
+    <div style="display:flex;flex-direction:column;gap:10px" id="m-opciones-asistencia"></div>
+  </div>
+  <div id="m-tab-novedades" class="hidden" style="padding:20px 18px 100px">
+    <div id="m-novedad-existente" class="hidden" style="background:#111820;border:1px solid #1e2d20;border-radius:14px;padding:16px;margin-bottom:20px">
+      <div id="m-nov-hora" style="color:#00c853;font-size:0.78rem;font-weight:700;margin-bottom:8px"></div>
+      <span id="m-nov-motivo-badge" class="badge"></span>
+      <p id="m-nov-desc" style="margin-top:10px;font-size:0.85rem;color:#5a7060;line-height:1.6"></p>
+      <button class="btnGhost" style="margin-top:12px;font-size:0.8rem;padding:9px" onclick="editarNovedad()">✏️ Editar</button>
+    </div>
+    <p id="m-nov-hint" style="color:#4a6050;font-size:0.85rem;margin-bottom:18px;line-height:1.6">¿No puedes asistir o llegas tarde? Deja aquí el motivo para que el administrador esté informado.</p>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <div class="label">Tipo de novedad *</div>
+        <div id="chips-motivo" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px"></div>
+      </div>
+      <div>
+        <div class="label" style="margin-bottom:8px">Descripción *</div>
+        <textarea class="inp" id="nov-desc" style="min-height:100px" placeholder="Explica brevemente el motivo..."></textarea>
+      </div>
+      <button class="btnGreen" onclick="guardarNovedad()">📝 Registrar Novedad</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADMIN ===== -->
+<div id="v-admin" class="page hidden">
+  <div class="header">
+    <button class="backBtn" onclick="goSplash()">←</button>
+    <div style="flex:1"><div class="hTitle">🔐 Administrador</div><div class="hSub" id="admin-sub">Acceso protegido</div></div>
+    <button id="btn-refresh" class="hidden btnSm" onclick="cargarDia()">↻</button>
+  </div>
+  <div id="admin-pin" style="padding:40px 24px;display:flex;flex-direction:column;gap:14px;max-width:360px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:10px"><div style="font-size:3rem;margin-bottom:12px">🔒</div><p style="color:#4a6050;font-size:0.9rem">Ingresa el PIN de administrador</p></div>
+    <input class="inp" id="pin-input" type="password" placeholder="• • • • •" style="text-align:center;font-size:1.2rem;letter-spacing:4px" onkeydown="if(event.key==='Enter')loginAdmin()"/>
+    <button class="btnGreen" onclick="loginAdmin()">Entrar</button>
+  </div>
+  <div id="admin-panel" class="hidden">
+    <div style="padding:10px 14px;background:#0d1117;border-bottom:1px solid #1a2520;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <label style="color:#4a6050;font-size:0.78rem">📅</label>
+      <input type="date" id="admin-fecha" style="background:#111820;border:1px solid #1e2d20;color:#e2ebe2;padding:6px 10px;border-radius:8px;font-size:0.82rem" onchange="cambiarFecha()"/>
+      <button class="btnSm" onclick="exportarWPP()">📤 WPP</button>
+      <button class="btnSm" style="background:#ff174418;color:#ff1744;border-color:#ff1744" onclick="resetDia()">🔄 Reset</button>
+    </div>
+    <div id="stats-bar" style="display:flex;gap:7px;padding:10px 12px;background:#080c10;border-bottom:1px solid #1a2520;overflow-x:auto"></div>
+    <div class="tabBar">
+      <button id="tab-a-asistencia" class="tabOn" onclick="setTabAdmin('asistencia')">📋 Asistencia</button>
+      <button id="tab-a-novedades" class="tabOff" onclick="setTabAdmin('novedades')">📝 Novedades</button>
+      <button id="tab-a-equipo" class="tabOff" onclick="setTabAdmin('equipo')">👥 Equipo</button>
+    </div>
+    <div id="a-tab-asistencia">
+      <div style="padding:8px 14px;background:#0d1117">
+        <input class="inp" id="buscar-admin" placeholder="🔍 Buscar..." oninput="renderAdminLista()"/>
+      </div>
+      <div id="admin-lista" style="padding:8px 14px 100px;display:flex;flex-direction:column;gap:7px"></div>
+    </div>
+    <div id="a-tab-novedades" class="hidden">
+      <div id="admin-novedades" style="padding:12px 14px 100px;display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+    <div id="a-tab-equipo" class="hidden">
+      <div style="padding:12px 14px 100px">
+        <div id="add-member-form" class="hidden" style="background:#111820;border:1.5px solid #00c853;border-radius:14px;padding:16px;margin-bottom:14px">
+          <p style="color:#00c853;font-weight:700;margin-bottom:10px;font-size:0.9rem">Nuevo integrante</p>
+          <input class="inp" id="nuevo-nombre" placeholder="Nombre completo..." style="margin-bottom:10px" onkeydown="if(event.key==='Enter')agregarMiembro()"/>
+          <div style="display:flex;gap:8px">
+            <button class="btnGreen" style="flex:1;padding:10px;margin-bottom:0" onclick="agregarMiembro()">Agregar</button>
+            <button class="btnGhost" style="flex:1;padding:10px;margin-bottom:0" onclick="cancelarAgregar()">Cancelar</button>
+          </div>
+        </div>
+        <button id="btn-add-member" class="btnGreen" style="margin-bottom:14px" onclick="mostrarAddMember()">➕ Agregar nuevo integrante</button>
+        <p id="equipo-count" style="color:#3d5040;font-size:0.78rem;margin-bottom:10px"></p>
+        <div id="equipo-lista" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+// ── CONSTANTES ──
+const INTEGRANTES_BASE = [
+  "Agiston Jesús Guerrero Medrano","Alejandro Cadavid Ramos","Camilo Andres Hernandez Diaz",
+  "Eduards Mauricio Amaris Barrios","Ever Ivan Santos Torres","Katherine Paola Perez Simanca",
+  "Moisés David López Marimon","Heidy Lucia Balseiro Caraballo","Wilfrand Guete Ramos",
+  "Bladimir Jose Sabalza Rojas","Jeison Enrique Murillo Hurtado","Heidi Oviedo Caicedo",
+  "Delis Gutierrez Alzamora","Lina Maria Berrio","Roberto Julio Theran","Keismer Verbel Angulo",
+  "Nelson Fuentes Orozco","Wolffan Augusto Cabrera Salcedo","Jorge Martinez Garcia",
+  "Juan Andres Mestra Florez","Jhon Faver Torres Vidal","Katia Esther Cuesta Garcia",
+  "Yorleidys Bolaño Santana","Juan Gabriel Aristizabal (Domi XL)","Humberto Enrique Bermejo De Arco",
+  "Mirabel Navarro","Leonardo Lopez Perez","Dorlin Blanco Torres","Samir Jimenez",
+  "Jesus David De La Ossa Chopere Na","Juan Cantillo Viloria","Ismael De Avila Balletas",
+  "Ricardo Agudelo Sierra","Eduard David Ospina Valdes","Karoll Enoelia Verdooren Barros",
+  "Vanessa Cristina Montes Monterroza","Milciades Elias Machado Pabuena",
+  "Blanca Rosa Hurtado Rincon (Domicarga)","Daicy Garcia Gomez (Domi XL)",
+  "Jair Francisco Jimenez Coneo","Luis Javier Echeverri Rojas","Yulisa Edith Rodelo Diaz",
+  "Luz Daris Garcia Solis","Leandro Ramirez Morales","Walter Yonaiker Cortes Perez"
+];
+const ADMIN_PIN = "Admin2025";
+const COLORES = {presente:"#00c853",ausente:"#ff1744",tardanza:"#ff9100",pendiente:"#3d444d"};
+const ICONS = {presente:"✅",ausente:"❌",tardanza:"⏰",pendiente:"⏳"};
+const MOTIVOS_COLOR = {Enfermedad:"#ff1744",Calamidad:"#ff9100",Permiso:"#00c853",Vacaciones:"#ffd600",Otro:"#888"};
+
+// ── ESTADO ──
+let db = null;
+let state = {
+  integrantes:[],
+  asistencia:{},
+  novedades:[],
+  fecha: new Date().toISOString().split("T")[0],
+  miembro: null,
+  tabMiembro:"asistencia",
+  tabAdmin:"asistencia",
+  adminOk:false,
+  novMotivo:"",
+  unsubAsist: null,
+  unsubNov: null,
+};
+
+// ── HELPERS ──
+function hoy(){ return new Date().toISOString().split("T")[0]; }
+function formatFecha(f){
+  if(!f)return "";
+  const [y,m,d]=f.split("-");
+  const meses=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  return `${parseInt(d)} de ${meses[parseInt(m)-1]} de ${y}`;
+}
+function toTitle(s=""){ return s.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()); }
+function iniciales(n=""){
+  const p=n.replace(/\(.*?\)/g,"").trim().split(" ");
+  return ((p[0]?.[0]||"")+(p[1]?.[0]||"")).toUpperCase();
+}
+function safePath(s){ return s.replace(/[.#$\[\]]/g,"_"); }
+
+// ── TOAST ──
+let toastTimer;
+window.showToast = function(msg,type="ok"){
+  clearTimeout(toastTimer);
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.style.background=type==="warn"?"#ff9100":"#00c853";
+  t.style.color="#000";
+  t.classList.remove("hidden");
+  toastTimer=setTimeout(()=>t.classList.add("hidden"),3000);
+};
+
+// ── SYNC INDICATOR ──
+function setSync(ok){
+  const el=document.getElementById("m-sync");
+  if(el) el.textContent = ok ? "🟢 sincronizado" : "🔴 sin conexión";
+}
+
+// ── CONFIG FIREBASE ──
+window.guardarConfig = async function(){
+  const apiKey    = document.getElementById("cfg-apiKey").value.trim();
+  const authDomain= document.getElementById("cfg-authDomain").value.trim();
+  const databaseURL=document.getElementById("cfg-databaseURL").value.trim();
+  const projectId = document.getElementById("cfg-projectId").value.trim();
+  const errEl     = document.getElementById("cfg-error");
+  const btnText   = document.getElementById("cfg-btn-text");
+
+  if(!apiKey||!authDomain||!databaseURL||!projectId){
+    errEl.textContent="⚠️ Completa todos los campos.";
+    errEl.classList.remove("hidden"); return;
+  }
+  if(!databaseURL.startsWith("https://")){
+    errEl.textContent="⚠️ La Database URL debe empezar con https://";
+    errEl.classList.remove("hidden"); return;
+  }
+
+  btnText.innerHTML=`<span class="spinner"></span>Conectando...`;
+  errEl.classList.add("hidden");
+
+  try {
+    const cfg={apiKey,authDomain,databaseURL,projectId,storageBucket:`${projectId}.appspot.com`,messagingSenderId:"",appId:""};
+    const app = initializeApp(cfg);
+    db = getDatabase(app);
+
+    // test conexión
+    const testRef = ref(db,"_test");
+    await set(testRef, {ok:true});
+
+    // guardar config
+    localStorage.setItem("fb_config", JSON.stringify(cfg));
+    document.getElementById("config-overlay").classList.add("hidden");
+    btnText.textContent="Conectar y continuar →";
+    iniciarApp();
+  } catch(e){
+    btnText.textContent="Conectar y continuar →";
+    errEl.textContent="❌ Error al conectar: "+e.message;
+    errEl.classList.remove("hidden");
+  }
+};
+
+window.resetConfig = function(){
+  localStorage.removeItem("fb_config");
+  document.getElementById("config-overlay").classList.remove("hidden");
+  showView("v-splash");
+};
+
+// ── INIT ──
+async function boot(){
+  const saved = localStorage.getItem("fb_config");
+  if(saved){
+    try{
+      const cfg = JSON.parse(saved);
+      const app = initializeApp(cfg);
+      db = getDatabase(app);
+      document.getElementById("config-overlay").classList.add("hidden");
+      iniciarApp();
+    } catch {
+      document.getElementById("config-overlay").classList.remove("hidden");
+    }
+  } else {
+    document.getElementById("config-overlay").classList.remove("hidden");
+  }
+}
+
+async function iniciarApp(){
+  // cargar integrantes
+  const snap = await get(ref(db,"integrantes"));
+  if(snap.exists()){
+    state.integrantes = snap.val();
+  } else {
+    state.integrantes = [...INTEGRANTES_BASE].sort((a,b)=>a.localeCompare(b,"es"));
+    await set(ref(db,"integrantes"), state.integrantes);
+  }
+  document.getElementById("splash-count").textContent = state.integrantes.length+" integrantes registrados";
+  showView("v-splash");
+}
+
+// ── VISTAS ──
+function showView(id){
+  ["v-splash","v-seleccion","v-miembro","v-admin"].forEach(v=>{
+    const el=document.getElementById(v);
+    el.classList.add("hidden");
+    el.style.display="";
+  });
+  document.getElementById(id).classList.remove("hidden");
+}
+
+window.goSplash = function(){
+  detachListeners();
+  document.getElementById("splash-count").textContent=state.integrantes.length+" integrantes registrados";
+  showView("v-splash");
+};
+
+window.goSeleccion = function(){
+  document.getElementById("buscar-sel").value="";
+  renderSeleccion();
+  showView("v-seleccion");
+};
+
+window.goAdmin = function(){
+  state.adminOk=false;
+  document.getElementById("admin-pin").classList.remove("hidden");
+  document.getElementById("admin-panel").classList.add("hidden");
+  document.getElementById("btn-refresh").classList.add("hidden");
+  document.getElementById("pin-input").value="";
+  document.getElementById("admin-sub").textContent="Acceso protegido";
+  showView("v-admin");
+};
+
+function goMiembro(nombre){
+  state.miembro=nombre;
+  state.fecha=hoy();
+  state.tabMiembro="asistencia";
+  document.getElementById("m-nombre-titulo").textContent=`Hola, ${toTitle(nombre).split(" ")[0]} 👋`;
+  document.getElementById("m-fecha-titulo").textContent=formatFecha(hoy());
+  setSync(false);
+  showView("v-miembro");
+  escucharDia();
+  setTabMiembro("asistencia");
+}
+window.goMiembro = goMiembro;
+
+// ── FIREBASE LISTENERS ──
+function detachListeners(){
+  // onValue returns unsubscribe fn
+  if(state.unsubAsist){ state.unsubAsist(); state.unsubAsist=null; }
+  if(state.unsubNov){ state.unsubNov(); state.unsubNov=null; }
+}
+
+function escucharDia(){
+  detachListeners();
+  const f=state.fecha;
+  state.unsubAsist = onValue(ref(db,`asistencia/${f}`), snap=>{
+    state.asistencia = snap.exists() ? snap.val() : {};
+    setSync(true);
+    if(state.tabMiembro==="asistencia") renderMiembroAsistencia();
+    if(state.adminOk && state.tabAdmin==="asistencia"){ renderAdminLista(); renderStats(); }
+  });
+  state.unsubNov = onValue(ref(db,`novedades/${f}`), snap=>{
+    state.novedades = snap.exists() ? Object.values(snap.val()) : [];
+    if(state.tabMiembro==="novedades") renderMiembroNovedad();
+    if(state.adminOk && state.tabAdmin==="novedades") renderAdminNovedades();
+  });
+}
+
+async function cargarDia(){
+  if(!db)return;
+  const f=state.fecha;
+  const [sa,sn]=await Promise.all([
+    get(ref(db,`asistencia/${f}`)),
+    get(ref(db,`novedades/${f}`))
+  ]);
+  state.asistencia = sa.exists() ? sa.val() : {};
+  state.novedades  = sn.exists() ? Object.values(sn.val()) : [];
+  renderAdminLista(); renderAdminNovedades(); renderStats();
+}
+window.cargarDia = cargarDia;
+
+// ── SELECCIÓN ──
+window.renderSeleccion = function(){
+  const q=document.getElementById("buscar-sel").value.toLowerCase();
+  const lista=state.integrantes.filter(n=>!q||n.toLowerCase().includes(q));
+  const container=document.getElementById("lista-seleccion");
+  if(!lista.length){ container.innerHTML=`<div class="empty">No se encontró ningún integrante</div>`; return; }
+  container.innerHTML=lista.map(n=>`
+    <button class="personBtn" onclick="goMiembro(${JSON.stringify(n)})">
+      <div class="ava" style="background:#1a2d1a;color:#00c853">${iniciales(n)}</div>
+      <span style="font-size:0.92rem;font-weight:500;color:#e2ebe2;flex:1;text-align:left">${toTitle(n)}</span>
+      <span style="color:#3a5a3a;font-size:0.85rem">→</span>
+    </button>
+  `).join("");
+};
+
+// ── MIEMBRO TABS ──
+window.setTabMiembro = function(tab){
+  state.tabMiembro=tab;
+  document.getElementById("tab-m-asistencia").className=tab==="asistencia"?"tabOn":"tabOff";
+  document.getElementById("tab-m-novedades").className=tab==="novedades"?"tabOn":"tabOff";
+  document.getElementById("m-tab-asistencia").classList.toggle("hidden",tab!=="asistencia");
+  document.getElementById("m-tab-novedades").classList.toggle("hidden",tab!=="novedades");
+  if(tab==="asistencia") renderMiembroAsistencia();
+  else renderMiembroNovedad();
+};
+
+function renderMiembroAsistencia(){
+  const est=state.asistencia[safePath(state.miembro)]||"pendiente";
+  const banner=document.getElementById("m-estado-banner");
+  if(est!=="pendiente"){
+    banner.classList.remove("hidden");
+    banner.style.background=COLORES[est]+"18";
+    banner.style.border=`1.5px solid ${COLORES[est]}`;
+    document.getElementById("m-estado-icon").textContent=ICONS[est];
+    document.getElementById("m-estado-label").style.color=COLORES[est];
+    document.getElementById("m-estado-label").textContent=`Tu asistencia: ${est.charAt(0).toUpperCase()+est.slice(1)}`;
+  } else { banner.classList.add("hidden"); }
+
+  const opts=[
+    {e:"presente",label:"Presente",desc:"Estoy asistiendo hoy normalmente"},
+    {e:"tardanza",label:"Tardanza",desc:"Voy a llegar tarde"},
+    {e:"ausente",label:"Ausente",desc:"No puedo asistir hoy"},
+  ];
+  document.getElementById("m-opciones-asistencia").innerHTML=opts.map(({e,label,desc})=>`
+    <button onclick="setEstadoMiembro(${JSON.stringify(e)})" style="background:${est===e?COLORES[e]+"20":"#111820"};border:2px solid ${est===e?COLORES[e]:"#1e2d20"};border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;text-align:left;width:100%">
+      <span style="font-size:1.8rem">${ICONS[e]}</span>
+      <div style="flex:1">
+        <div style="color:${est===e?COLORES[e]:"#e2ebe2"};font-weight:800;font-size:1rem;font-family:'Syne',sans-serif">${label}</div>
+        <div style="color:#4a6050;font-size:0.78rem;margin-top:2px">${desc}</div>
+      </div>
+      ${est===e?`<span style="color:${COLORES[e]};font-size:1.3rem;font-weight:900">✓</span>`:""}
+    </button>
+  `).join("");
+}
+
+window.setEstadoMiembro = async function(estado){
+  const key=safePath(state.miembro);
+  await set(ref(db,`asistencia/${state.fecha}/${key}`), estado);
+  showToast(`${ICONS[estado]} ${estado.charAt(0).toUpperCase()+estado.slice(1)} registrado`);
+};
+
+function renderMiembroNovedad(){
+  const nov=state.novedades.find(n=>n.nombre===state.miembro);
+  const existente=document.getElementById("m-novedad-existente");
+  const hint=document.getElementById("m-nov-hint");
+  if(nov){
+    existente.classList.remove("hidden");
+    hint.classList.add("hidden");
+    document.getElementById("m-nov-hora").textContent=`✅ Novedad registrada a las ${nov.hora}`;
+    const badge=document.getElementById("m-nov-motivo-badge");
+    badge.textContent=nov.motivo;
+    badge.style.background=(MOTIVOS_COLOR[nov.motivo]||"#888")+"22";
+    badge.style.color=MOTIVOS_COLOR[nov.motivo]||"#888";
+    document.getElementById("m-nov-desc").textContent=nov.desc;
+  } else {
+    existente.classList.add("hidden");
+    hint.classList.remove("hidden");
+  }
+  state.novMotivo=nov?nov.motivo:"";
+  if(nov) document.getElementById("nov-desc").value=nov.desc;
+  else document.getElementById("nov-desc").value="";
+  renderChips();
+}
+
+function renderChips(){
+  const motivos=["Enfermedad","Calamidad","Permiso","Vacaciones","Otro"];
+  document.getElementById("chips-motivo").innerHTML=motivos.map(m=>`
+    <button class="chipBtn" onclick="selMotivo(${JSON.stringify(m)})" style="border:1.5px solid ${state.novMotivo===m?"#00c853":"#1e2d20"};background:${state.novMotivo===m?"#00c85318":"#111820"};color:${state.novMotivo===m?"#00c853":"#4a6050"}">${m}</button>
+  `).join("");
+}
+window.selMotivo = function(m){ state.novMotivo=m; renderChips(); };
+
+window.editarNovedad = function(){
+  const nov=state.novedades.find(n=>n.nombre===state.miembro);
+  if(nov){ state.novMotivo=nov.motivo; document.getElementById("nov-desc").value=nov.desc; renderChips(); }
+};
+
+window.guardarNovedad = async function(){
+  const desc=document.getElementById("nov-desc").value.trim();
+  if(!state.novMotivo||!desc){ showToast("⚠️ Completa todos los campos","warn"); return; }
+  const hora=new Date().toLocaleTimeString("es-CO",{hour:"2-digit",minute:"2-digit"});
+  const nueva={id:Date.now(),nombre:state.miembro,motivo:state.novMotivo,desc,hora};
+  const key=safePath(state.miembro);
+  await set(ref(db,`novedades/${state.fecha}/${key}`), nueva);
+  showToast("📝 Novedad guardada");
+};
+
+// ── ADMIN ──
+window.loginAdmin = function(){
+  const pin=document.getElementById("pin-input").value;
+  if(pin===ADMIN_PIN){
+    state.adminOk=true;
+    state.fecha=hoy();
+    document.getElementById("admin-fecha").value=state.fecha;
+    document.getElementById("admin-sub").textContent=formatFecha(state.fecha);
+    document.getElementById("admin-pin").classList.add("hidden");
+    document.getElementById("admin-panel").classList.remove("hidden");
+    document.getElementById("btn-refresh").classList.remove("hidden");
+    escucharDia();
+    setTabAdmin("asistencia");
+  } else { showToast("❌ PIN incorrecto","warn"); }
+};
+
+window.cambiarFecha = function(){
+  state.fecha=document.getElementById("admin-fecha").value;
+  document.getElementById("admin-sub").textContent=formatFecha(state.fecha);
+  escucharDia();
+};
+
+window.setTabAdmin = function(tab){
+  state.tabAdmin=tab;
+  ["asistencia","novedades","equipo"].forEach(t=>{
+    document.getElementById(`tab-a-${t}`).className=tab===t?"tabOn":"tabOff";
+    document.getElementById(`a-tab-${t}`).classList.toggle("hidden",tab!==t);
+  });
+  if(tab==="equipo") renderEquipo();
+};
+
+function renderStats(){
+  const total=state.integrantes.length;
+  const p=state.integrantes.filter(n=>state.asistencia[safePath(n)]==="presente").length;
+  const a=state.integrantes.filter(n=>state.asistencia[safePath(n)]==="ausente").length;
+  const t=state.integrantes.filter(n=>state.asistencia[safePath(n)]==="tardanza").length;
+  const pend=state.integrantes.filter(n=>!state.asistencia[safePath(n)]).length;
+  const bars=[{lbl:"Total",num:total,c:"#00c853"},{lbl:"Presente",num:p,c:"#00c853"},{lbl:"Tardanza",num:t,c:"#ff9100"},{lbl:"Ausente",num:a,c:"#ff1744"},{lbl:"Pendiente",num:pend,c:"#3d444d"}];
+  document.getElementById("stats-bar").innerHTML=bars.map(b=>`
+    <div class="statBox"><div class="statNum" style="color:${b.c}">${b.num}</div><div class="statLbl">${b.lbl}</div></div>
+  `).join("");
+}
+
+function renderAdminLista(){
+  const q=document.getElementById("buscar-admin").value.toLowerCase();
+  const lista=state.integrantes.filter(n=>!q||n.toLowerCase().includes(q));
+  document.getElementById("admin-lista").innerHTML=lista.map(nombre=>{
+    const key=safePath(nombre);
+    const est=state.asistencia[key]||"pendiente";
+    return `
+      <div class="card" style="border-color:${COLORES[est]};background:${est!=="pendiente"?COLORES[est]+"0d":"#111820"}">
+        <div class="ava" style="background:${est!=="pendiente"?COLORES[est]+"30":"#1a2520"};color:${est!=="pendiente"?COLORES[est]:"#3d5040"}">${iniciales(nombre)}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.87rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e2ebe2">${toTitle(nombre)}</div>
+          <div style="font-size:0.7rem;color:${COLORES[est]};margin-top:2px">${ICONS[est]} ${est.charAt(0).toUpperCase()+est.slice(1)}</div>
+        </div>
+        <div style="display:flex;gap:5px;flex-shrink:0">
+          ${["presente","tardanza","ausente"].map(e=>`
+            <button onclick="setEstadoAdmin(${JSON.stringify(nombre)},${JSON.stringify(e)})" style="width:32px;height:32px;border-radius:8px;border:none;cursor:pointer;font-size:0.85rem;background:${est===e?COLORES[e]:COLORES[e]+"20"};display:flex;align-items:center;justify-content:center">${ICONS[e]}</button>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+window.renderAdminLista = renderAdminLista;
+
+window.setEstadoAdmin = async function(nombre,estado){
+  await set(ref(db,`asistencia/${state.fecha}/${safePath(nombre)}`), estado);
+  showToast(`${ICONS[estado]} ${toTitle(nombre).split(" ")[0]}: ${estado}`);
+};
+
+function renderAdminNovedades(){
+  const container=document.getElementById("admin-novedades");
+  if(!state.novedades.length){ container.innerHTML=`<div class="empty">Sin novedades registradas para este día</div>`; return; }
+  container.innerHTML=state.novedades.map(nov=>`
+    <div style="background:#111820;border:1px solid #1e2d20;border-radius:14px;padding:14px 16px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;gap:8px">
+        <span style="font-weight:700;font-size:0.88rem;color:#e2ebe2">${toTitle(nov.nombre)}</span>
+        <span style="font-size:0.72rem;color:#3d5040;flex-shrink:0">${nov.hora}</span>
+      </div>
+      <span class="badge" style="background:${(MOTIVOS_COLOR[nov.motivo]||"#888")+"22"};color:${MOTIVOS_COLOR[nov.motivo]||"#888"}">${nov.motivo}</span>
+      <p style="margin-top:10px;font-size:0.85rem;color:#4a6050;line-height:1.6">${nov.desc}</p>
+    </div>
+  `).join("");
+}
+
+function renderEquipo(){
+  document.getElementById("equipo-count").textContent=state.integrantes.length+" integrantes en el equipo";
+  document.getElementById("equipo-lista").innerHTML=state.integrantes.map(n=>`
+    <div style="background:#111820;border:1px solid #1e2d20;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px">
+      <div class="ava" style="width:34px;height:34px;font-size:0.75rem;background:#1a2d1a;color:#00c853">${iniciales(n)}</div>
+      <span style="flex:1;font-size:0.87rem;color:#c2d6c2">${toTitle(n)}</span>
+      <button onclick="eliminarMiembro(${JSON.stringify(n)})" style="background:#ff174415;border:1px solid #ff174440;color:#ff1744;border-radius:7px;padding:5px 9px;font-size:0.72rem;cursor:pointer;font-weight:700">🗑️</button>
+    </div>
+  `).join("");
+}
+
+window.mostrarAddMember = function(){
+  document.getElementById("btn-add-member").classList.add("hidden");
+  document.getElementById("add-member-form").classList.remove("hidden");
+  document.getElementById("nuevo-nombre").value="";
+  document.getElementById("nuevo-nombre").focus();
+};
+window.cancelarAgregar = function(){
+  document.getElementById("btn-add-member").classList.remove("hidden");
+  document.getElementById("add-member-form").classList.add("hidden");
+};
+
+window.agregarMiembro = async function(){
+  const nombre=document.getElementById("nuevo-nombre").value.trim();
+  if(!nombre){ showToast("⚠️ Escribe un nombre","warn"); return; }
+  if(state.integrantes.some(n=>n.toLowerCase()===nombre.toLowerCase())){ showToast("⚠️ Ya existe","warn"); return; }
+  state.integrantes=[...state.integrantes,nombre].sort((a,b)=>a.localeCompare(b,"es"));
+  await set(ref(db,"integrantes"),state.integrantes);
+  cancelarAgregar();
+  showToast(`✅ ${toTitle(nombre)} agregado`);
+  renderEquipo();
+  document.getElementById("equipo-count").textContent=state.integrantes.length+" integrantes en el equipo";
+};
+
+window.eliminarMiembro = async function(nombre){
+  if(!confirm(`¿Eliminar a ${toTitle(nombre)}?`)) return;
+  state.integrantes=state.integrantes.filter(n=>n!==nombre);
+  await set(ref(db,"integrantes"),state.integrantes);
+  showToast("🗑️ Eliminado");
+  renderEquipo();
+};
+
+window.exportarWPP = function(){
+  const ints=state.integrantes;
+  const p=ints.filter(n=>state.asistencia[safePath(n)]==="presente");
+  const t2=ints.filter(n=>state.asistencia[safePath(n)]==="tardanza");
+  const a=ints.filter(n=>state.asistencia[safePath(n)]==="ausente");
+  const pend=ints.filter(n=>!state.asistencia[safePath(n)]);
+  let msg=`📋 *REGISTRO DE ASISTENCIA*\n📅 ${formatFecha(state.fecha)}\n━━━━━━━━━━━━━━━━\n\n`;
+  msg+=`✅ *PRESENTES (${p.length}/${ints.length})*\n${p.map((n,i)=>`${i+1}. ${toTitle(n)}`).join("\n")}\n\n`;
+  if(t2.length) msg+=`⏰ *TARDANZAS (${t2.length})*\n${t2.map((n,i)=>`${i+1}. ${toTitle(n)}`).join("\n")}\n\n`;
+  if(a.length)  msg+=`❌ *AUSENTES (${a.length})*\n${a.map((n,i)=>`${i+1}. ${toTitle(n)}`).join("\n")}\n\n`;
+  if(state.novedades.length){ msg+=`📝 *NOVEDADES*\n`; state.novedades.forEach(n=>{msg+=`• ${toTitle(n.nombre)}: [${n.motivo}] ${n.desc}\n`;}); msg+="\n"; }
+  if(pend.length) msg+=`⏳ *SIN REGISTRAR (${pend.length})*\n${pend.map((n,i)=>`${i+1}. ${toTitle(n)}`).join("\n")}\n\n`;
+  msg+=`━━━━━━━━━━━━━━━━\n📊 ${p.length} presentes | ${t2.length} tardanzas | ${a.length} ausentes`;
+  navigator.clipboard?.writeText(msg).then(()=>showToast("📋 Resumen copiado para WPP"));
+};
+
+window.resetDia = async function(){
+  if(!confirm(`¿Borrar asistencia del ${formatFecha(state.fecha)}?`)) return;
+  await remove(ref(db,`asistencia/${state.fecha}`));
+  showToast("🔄 Reseteado");
+};
+
+window.renderSeleccion = renderSeleccion;
+
+boot();
+</script>
+</body>
+</html>
